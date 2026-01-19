@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import css from "./App.module.css";
+import { keepPreviousData } from "@tanstack/react-query";
 
 import { fetchNotes } from "../../services/noteService";
 import NoteList from "../NoteList/NoteList";
@@ -16,11 +17,14 @@ export default function App() {
   const [debouncedSearch] = useDebounce(search, 500);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["notes", page, debouncedSearch],
-    queryFn: () =>
-      fetchNotes({ page, perPage: 12, search: debouncedSearch }),
-  });
+
+const { data, isLoading, isError } = useQuery({
+  queryKey: ["notes", page, debouncedSearch],
+  queryFn: () =>
+    fetchNotes({ page, perPage: 12, search: debouncedSearch }),
+  placeholderData: keepPreviousData,
+});
+
 
   return (
     <div className={css.app}>
