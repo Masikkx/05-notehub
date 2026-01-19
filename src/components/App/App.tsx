@@ -26,19 +26,28 @@ export default function App() {
     <div className={css.app}>
       <header className={css.toolbar}>
         <SearchBox value={search} onChange={setSearch} />
-        <button className={css.button} onClick={() => setIsModalOpen(true)}>
+        
+        <button 
+          className={css.button} 
+          onClick={() => setIsModalOpen(true)}
+        >
           Create note +
         </button>
       </header>
 
       {isLoading && <p>Loading...</p>}
-      {isError && <p>Error</p>}
+      {isError && <p>Error loading notes</p>}
 
-      {data && <NoteList notes={data.notes} />}
+      {data && data.notes.length > 0 ? (
+        <NoteList notes={data.notes} />
+      ) : (
+        !isLoading && <p>No notes found</p>
+      )}
 
-      {data && (
+      {data && data.totalPages > 1 && (
         <Pagination
           pageCount={data.totalPages}
+          currentPage={page}
           onPageChange={setPage}
         />
       )}

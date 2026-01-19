@@ -1,4 +1,4 @@
-import { Formik } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import css from "./NoteForm.module.css";
@@ -17,7 +17,7 @@ const NoteSchema = Yup.object({
     .required("Required"),
 });
 
-interface Props {
+interface NoteFormProps {
   onCancel: () => void;
 }
 
@@ -27,7 +27,7 @@ interface FormValues {
   tag: typeof TAGS[number];
 }
 
-export default function NoteForm({ onCancel }: Props) {
+export default function NoteForm({ onCancel }: NoteFormProps) {
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
@@ -48,74 +48,86 @@ export default function NoteForm({ onCancel }: Props) {
     <Formik<FormValues>
       initialValues={initialValues}
       validationSchema={NoteSchema}
-      onSubmit={(values) =>
+      onSubmit={(values, { resetForm }) => {
         mutate({
           title: values.title,
           content: values.content,
           tag: values.tag,
-        })
-      }
+        });
+        resetForm();
+      }}
     >
-      {({ handleSubmit, handleChange, values, errors, touched }) => (
-        <form className={css.form} onSubmit={handleSubmit}>
+      {({ isSubmitting }) => (
+        <Form className={css.form}>
           <div className={css.formGroup}>
             <label htmlFor="title">Title</label>
-            <input
+            <Field
               id="title"
               name="title"
+              type="text"
               className={css.input}
-              value={values.title}
-              onChange={handleChange}
             />
-            {touched.title && errors.title && (
-              <span className={css.error}>{errors.title}</span>
-            )}
+            <ErrorMessage
+              name="title"
+              component="span"
+              className={css.error}
+            />
           </div>
 
           <div className={css.formGroup}>
             <label htmlFor="content">Content</label>
-            <textarea
+            <Field
               id="content"
               name="content"
+              as="textarea"
               rows={8}
               className={css.textarea}
-              value={values.content}
-              onChange={handleChange}
             />
-            {touched.content && errors.content && (
-              <span className={css.error}>{errors.content}</span>
-            )}
+            <ErrorMessage
+              name="content"
+              component="span"
+              className={css.error}
+            />
           </div>
 
           <div className={css.formGroup}>
             <label htmlFor="tag">Tag</label>
-            <select
+            <Field
               id="tag"
               name="tag"
+              as="select"
               className={css.select}
-              value={values.tag}
-              onChange={handleChange}
             >
               {TAGS.map((tag) => (
                 <option key={tag} value={tag}>
                   {tag}
                 </option>
               ))}
-            </select>
-            {touched.tag && errors.tag && (
-              <span className={css.error}>{errors.tag}</span>
-            )}
+            </Field>
+            <ErrorMessage
+              name="tag"
+              component="span"
+              className={css.error}
+            />
           </div>
 
           <div className={css.actions}>
-            <button type="button" onClick={onCancel} className={css.cancelButton}>
+            <button
+              type="button"
+              onClick={onCancel}
+              className={css.cancelButton}
+            >
               Cancel
             </button>
-            <button type="submit" className={css.submitButton} disabled={isPending}>
+            <button
+              type="submit"
+              className={css.submitButton}
+              disabled={isPending || isSubmitting}
+            >
               Create note
             </button>
           </div>
-        </form>
+        </Form>
       )}
     </Formik>
   );

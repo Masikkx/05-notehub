@@ -10,7 +10,7 @@ interface FetchNotesParams {
   search?: string;
 }
 
-interface FetchNotesResponse {
+export interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
 }
@@ -20,7 +20,7 @@ export const fetchNotes = async ({
   perPage = 12,
   search = ""
 }: FetchNotesParams): Promise<FetchNotesResponse> => {
-  const { data } = await axios.get("/notes", {
+  const { data } = await axios.get<FetchNotesResponse>("/notes", {
     params: { page, perPage, search },
   });
   return data;
@@ -31,11 +31,11 @@ export const createNote = async (payload: {
   content: string;
   tag: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 }): Promise<Note> => {
-  const { data } = await axios.post("/notes", payload);
+  const { data } = await axios.post<Note>("/notes", payload);
   return data;
 };
 
 export const deleteNote = async (id: string): Promise<Note> => {
-  const { data } = await axios.delete(`/notes/${id}`);
+  const { data } = await axios.delete<Note>(`/notes/${id}`);
   return data;
 };
