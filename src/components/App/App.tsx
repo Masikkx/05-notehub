@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import css from "./App.module.css";
@@ -17,6 +17,9 @@ export default function App() {
   const [debouncedSearch] = useDebounce(search, 500);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(()=>{
+    setPage(1);
+  }, [debouncedSearch]);
 
 const { data, isLoading, isError } = useQuery({
   queryKey: ["notes", page, debouncedSearch],
